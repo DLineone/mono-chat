@@ -63,3 +63,29 @@ export const send_message = spacetimedb.reducer(
     });
   },
 );
+
+export const init = spacetimedb.init((_ctx) => {});
+
+export const onConnect = spacetimedb.clientConnected((ctx) => {
+  const user = ctx.db.user.identity.find(ctx.sender);
+  if (user) {
+    ctx.db.user.identity.update({ ...user, online: true });
+  } else {
+    ctx.db.user.insert({
+      identity: ctx.sender,
+      name: undefined,
+      online: true,
+    });
+  }
+});
+
+export const onDisconnect = spacetimedb.clientDisconnected((ctx) => {
+  const user = ctx.db.user.identity.find(ctx.sender);
+  if (user) {
+    ctx.db.user.identity.update({ ...user, online: false });
+  } else {
+    console.warn(
+      `Disconnect event for unknown user with identity ${ctx.sender}`,
+    );
+  }
+});
