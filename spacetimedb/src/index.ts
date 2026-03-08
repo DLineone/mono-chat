@@ -27,9 +27,7 @@ function validateName(name: string) {
     throw new SenderError("Names must not be empty");
   }
   if (name.length < 3 || name.length > 20) {
-    throw new SenderError(
-      "Names must not be shorter than 3 and longer than 20",
-    );
+    throw new SenderError("Names must be between 3 and 20 characters long");
   }
 }
 
@@ -46,8 +44,11 @@ export const set_name = spacetimedb.reducer(
 );
 
 function validateMessage(text: string) {
-  if (!text) {
+  if (!text.trim()) {
     throw new SenderError("Messages must not be empty");
+  }
+  if (text.length > 256) {
+    throw new SenderError("Messages must not be longer than 256 characters");
   }
 }
 
