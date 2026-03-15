@@ -65,8 +65,6 @@ export const send_message = spacetimedb.reducer(
   },
 );
 
-export const init = spacetimedb.init((_ctx) => {});
-
 export const onConnect = spacetimedb.clientConnected((ctx) => {
   const user = ctx.db.user.identity.find(ctx.sender);
   if (user) {
