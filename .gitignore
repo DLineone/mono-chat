@@ -10,4 +10,3 @@ lerna-debug.log*
 node_modules
 spacetimedb/dist
 .zed
-src/module_bindings
