@@ -66,6 +66,14 @@ function App() {
       };
     });
 
+  if (!connected || !identity) {
+    return (
+      <div className="App">
+        <h1>Connecting...</h1>
+      </div>
+    );
+  }
+
   const name = (() => {
     const user = users.find((u) => u.identity.isEqual(identity));
     return user?.name || identity?.toHexString().substring(0, 8) || "";
@@ -82,14 +90,6 @@ function App() {
     setNewMessage("");
     sendMessage({ text: newMessage });
   };
-
-  if (!connected || !identity) {
-    return (
-      <div className="App">
-        <h1>Connecting...</h1>
-      </div>
-    );
-  }
 
   return (
     <div className="App">
