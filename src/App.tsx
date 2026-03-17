@@ -17,7 +17,6 @@ function App() {
   const setName = useReducer(reducers.setName);
   const sendMessage = useReducer(reducers.sendMessage);
 
-  // Subscribe to all messages in the chat
   const [messages] = useTable(tables.message);
 
   const [newName, setNewName] = useState("");
@@ -25,10 +24,37 @@ function App() {
   const [systemMessages, setSystemMessages] = useState([] as Types.Message[]);
   const [newMessage, setNewMessage] = useState("");
 
-  const [onlineUsers] = useTable(tables.user.where((r) => r.online.eq(true)));
-  const offlineUsers: Types.User[] = [];
+  const [onlineUsers] = useTable(
+    tables.user.where((r) => r.online.eq(true)),
+    {
+      onInsert: (user) => {
+        const name = user.name || user.identity.toHexString().substring(0, 8);
+        setSystemMessages((prev) => [
+          ...prev,
+          {
+            sender: Identity.zero(),
+            text: `${name} has connected.`,
+            sent: Timestamp.now(),
+          },
+        ]);
+      },
+      onDelete: (user) => {
+        const name = user.name || user.identity.toHexString().substring(0, 8);
+        setSystemMessages((prev) => [
+          ...prev,
+          {
+            sender: Identity.zero(),
+            text: `${name} has disconnected.`,
+            sent: Timestamp.now(),
+          },
+        ]);
+      },
+    },
+  );
+  const [offlineUsers] = useTable(tables.user.where((r) => r.online.eq(false)));
   const users = [...onlineUsers, ...offlineUsers];
   const prettyMessages: PrettyMessage[] = messages
+    .concat(systemMessages)
     .sort((a, b) => (a.sent.toDate() > b.sent.toDate() ? 1 : -1))
     .map((message) => {
       const user = users.find((u) => u.identity.toHexString() === message.sender.toHexString());
@@ -48,13 +74,13 @@ function App() {
   const onSubmitNewName = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSettingName(false);
-    // TODO: Call `setName` reducer
+    setName({ name: newName });
   };
 
   const onSubmitMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setNewMessage("");
-    // TODO: Call `sendMessage` reducer
+    sendMessage({ text: newMessage });
   };
 
   if (!connected || !identity) {
