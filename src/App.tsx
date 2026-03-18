@@ -55,7 +55,7 @@ function App() {
   const users = [...onlineUsers, ...offlineUsers];
   const prettyMessages: PrettyMessage[] = messages
     .concat(systemMessages)
-    .sort((a, b) => (a.sent.toDate() > b.sent.toDate() ? 1 : -1))
+    .sort((a, b) => a.sent.toDate().getTime() - b.sent.toDate().getTime())
     .map((message) => {
       const user = users.find((u) => u.identity.toHexString() === message.sender.toHexString());
       return {
@@ -82,13 +82,13 @@ function App() {
   const onSubmitNewName = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSettingName(false);
-    setName({ name: newName });
+    setName({ name: newName.trim() });
   };
 
   const onSubmitMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setNewMessage("");
-    sendMessage({ text: newMessage });
+    sendMessage({ text: newMessage.trim() });
   };
 
   return (
